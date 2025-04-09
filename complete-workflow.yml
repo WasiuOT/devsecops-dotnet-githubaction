@@ -1,1 +1,32 @@
-name: End to End workflow of dotnet project 
+name: Build dotnet Pipeline
+
+on:
+  # Trigger analysis when pushing to your main branches, and when creating a pull request.
+  push:
+    branches:
+      - main
+      - develop
+      - 'releases/**'
+  pull_request:
+      types: [opened, synchronize, reopened]
+
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@<action version> # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+      with:
+        scannerVersion: 6.2.0.4584
+        projectBaseDir: app/src
+        args: >
+          -Dsonar.organization=iwotprojects # For SonarQube Cloud only
+          -Dsonar.projectKey=End-to-end-dotnet-github-action
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
