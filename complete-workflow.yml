@@ -5,55 +5,50 @@ on:
   push:
     branches:
       - main
-      # - develop
-      # - 'releases/**'
   pull_request:
-      types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   sonarqube:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        # Disabling shallow clones is recommended for improving the relevancy of reporting
-        fetch-depth: 0
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@<action version> # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
-      with:
-        scannerVersion: 6.2.0.4584
-        projectBaseDir: app/src
-        args: >
-          -Dsonar.organization=iwotprojects # For SonarQube Cloud only
-          -Dsonar.projectKey=End-to-end-dotnet-github-action
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Disabling shallow clones for better reporting
 
-security:
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4.1.0  # Replace with actual version
+        with:
+          scannerVersion: 6.2.0.4584
+          projectBaseDir: app/src
+          args: >
+            -Dsonar.organization=iwotprojects
+            -Dsonar.projectKey=End-to-end-dotnet-github-action
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  security:
     runs-on: ubuntu-latest
-    needs: sonarcloud
+    needs: sonarqube
     name: Run the SCA scan on the source code
     steps:
-      - uses: actions/checkout@master
-      - name: RunSnyk to check for vulnerabilities
+      - uses: actions/checkout@v4
+      - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/dotnet@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-zap_scan:
-  runs-on: ubuntu-latest
-  needs: security
-  name: Run DAST scan on the web application
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        ref: master
-    - name: ZAP Scan
-      uses: zaproxy/action-baseline@v0.14.0
-      with:
-        target: 'http://testphp.vulnweb.com/'
-        rules_file_name: '.zap/rules.tsv'
-        cmd_options: '-a'
+
+  zap_scan:
+    runs-on: ubuntu-latest
+    needs: security
+    name: Run DAST scan on the web application
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: ZAP
