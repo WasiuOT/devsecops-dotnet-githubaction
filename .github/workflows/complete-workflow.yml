@@ -19,10 +19,11 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v4
         with:
           scannerVersion: 6.2.0.4584
-          projectBaseDir: app/src
+          projectBaseDir: .
           args: >
             -Dsonar.organization=iwotprojects
             -Dsonar.projectKey=End-to-end-dotnet-github-action
+            -X
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
