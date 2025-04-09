@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0  # Disabling shallow clones for better reporting
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4.1.0
+        uses: SonarSource/sonarqube-scan-action@v4
         with:
           scannerVersion: 6.2.0.4584
           projectBaseDir: app/src
