@@ -11,28 +11,34 @@ jobs:
   sonarqube:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Disabling shallow clones for better reporting
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
         with:
-          scannerVersion: 6.2.0.4584
-          projectBaseDir: .
-          args: >
-            -Dsonar.organization=iwotprojects
-            -Dsonar.projectKey=End-to-end-dotnet-github-action
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.sources=lib/
-            -Dsonar.tests=tests/
-            -Dsonar.test.exclusions=tests/**
-            -Dsonar.verbose=true
-            -X
+          dotnet-version: '4.5.2'  
+
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Begin SonarQube Scan
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet sonarscanner begin /k:"End-to-end-dotnet-github-action" /o:"iwotprojects" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build the .NET Project
+        run: dotnet build
+
+      - name: End SonarQube Scan
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   security:
     runs-on: ubuntu-latest
