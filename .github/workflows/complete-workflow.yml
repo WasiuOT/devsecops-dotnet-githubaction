@@ -1,7 +1,6 @@
 name: Build dotnet Pipeline
 
 on:
-  # Trigger analysis when pushing to your main branches, and when creating a pull request.
   push:
     branches:
       - main
@@ -17,7 +16,7 @@ jobs:
           fetch-depth: 0  # Disabling shallow clones for better reporting
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4.1.0  # Replace with actual version
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
         with:
           scannerVersion: 6.2.0.4584
           projectBaseDir: app/src
@@ -51,4 +50,9 @@ jobs:
         with:
           ref: master
 
-      - name: ZAP
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: 'http://testphp.vulnweb.com/'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
