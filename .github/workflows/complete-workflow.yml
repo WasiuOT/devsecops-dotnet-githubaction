@@ -23,7 +23,11 @@ jobs:
           args: >
             -Dsonar.organization=iwotprojects
             -Dsonar.projectKey=End-to-end-dotnet-github-action
-            -X
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=lib/
+            -Dsonar.tests=tests/
+            -Dsonar.test.exclusions=tests/**
+            -Dsonar.verbose=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
