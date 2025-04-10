@@ -22,24 +22,23 @@ jobs:
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
 
-      - name: Begin SonarQube Scan
-        # run: |
-        #   export PATH="$PATH:$HOME/.dotnet/tools"
-        #   dotnet sonarscanner begin /k:"End-to-end-dotnet-github-action" /o:"iwotprojects" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-        uses: SonarSource/sonarqube-scan-action@v5.1.0
+      - name: Begin SonarCloud Scan
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet sonarscanner begin /k:"End-to-end-dotnet-github-action" /o:"iwotprojects" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
       - name: Build the .NET Project
         run: dotnet build
 
-      - name: End SonarQube Scan
+      - name: End SonarCloud Scan
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
           dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
   security:
     runs-on: ubuntu-latest
