@@ -24,7 +24,7 @@ jobs:
 
       - name: Begin SonarCloud Scan
         run: |
-          export PATH="$PATH:$HOME/.dotnet/tools"
+          export PATH="${PATH:$HOME/.dotnet/tools}"
           dotnet sonarscanner begin /k:"End-to-end-dotnet-github-action" /o:"iwotprojects" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
